@@ -167,6 +167,64 @@
       },
       hide: false
     },
+    quoting_mode: {
+      schema: {
+        title: "Tipo de cálculo",
+        type: "string",
+        description: "Escolha o tipo de cálculo utilizado a ser utilizado em sua loja",
+        enum: [
+          "DYNAMIC_BOX_ALL_ITEMS",
+          "REGISTERED_BOXES",
+          "DYNAMIC_BOX_SINGLE_ITEM",
+          "DYNAMIC_BOX_BY_SKU"
+        ]
+      },
+      hide: false
+    },
+    free_shipping_rules: {
+      schema: {
+        title: 'Regras de frete grátis',
+        description: 'Deve ser configurado em conformidade ao que foi configurado na Intelipost',
+        type: 'array',
+        maxItems: 300,
+        items: {
+          title: 'Regra de frete grátis',
+          type: 'object',
+          minProperties: 1,
+          properties: {
+            zip_range: {
+              title: 'Faixa de CEP',
+              type: 'object',
+              required: [
+                'min',
+                'max'
+              ],
+              properties: {
+                min: {
+                  type: 'integer',
+                  minimum: 10000,
+                  maximum: 999999999,
+                  title: 'CEP inicial'
+                },
+                max: {
+                  type: 'integer',
+                  minimum: 10000,
+                  maximum: 999999999,
+                  title: 'CEP final'
+                }
+              }
+            },
+            min_amount: {
+              type: 'number',
+              minimum: 1,
+              maximum: 999999999,
+              title: 'Valor mínimo da compra'
+            }
+          }
+        }
+      },
+      hide: false
+    },
     posting_deadline: {
       schema: {
         title: 'Prazo de postagem',

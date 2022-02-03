@@ -1,3 +1,6 @@
+const axios = require('axios')
+const ecomUtils = require('@ecomplus/utils')
+
 exports.post = ({ appSdk }, req, res) => {
   /**
    * Treat `params` and (optionally) `application` from request body to properly mount the `response`.
@@ -19,10 +22,30 @@ exports.post = ({ appSdk }, req, res) => {
   }
   // merge all app options configured by merchant
   const appData = Object.assign({}, application.data, application.hidden_data)
+  const token = appData.intelipost_token
+
+  if (!token) {
+    // must have configured Intelipost token
+    return res.status(409).send({
+      error: 'CALCULATE_AUTH_ERR',
+      message: 'Token unset on app hidden data (merchant must configure the app)'
+    })
+  }
 
   if (appData.free_shipping_from_value >= 0) {
     response.free_shipping_from_value = appData.free_shipping_from_value
   }
+
+  const destinationZip = params.to ? params.to.zip.replace(/\D/g, '') : ''
+  const checkZipCode = rule => {
+    // validate rule zip range
+    if (destinationZip && rule.zip_range) {
+      const { min, max } = rule.zip_range
+      return Boolean((!min || destinationZip >= min) && (!max || destinationZip <= max))
+    }
+    return true
+  }
+  
   if (!params.to) {
     // just a free shipping preview with no shipping address received
     // respond only with free shipping option

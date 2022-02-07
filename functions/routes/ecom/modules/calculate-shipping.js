@@ -129,7 +129,6 @@ exports.post = ({ appSdk }, req, res) => {
           return {
             quantity,
             sku_id: sku,
-            descricao: name,
             height: cmDimensions.height || 0,
             width: cmDimensions.width || 0,
             length: cmDimensions.length || 0,
@@ -146,7 +145,7 @@ exports.post = ({ appSdk }, req, res) => {
           try {
             result = JSON.parse(data)
           } catch (e) {
-            console.log('> Datafrete invalid JSON response')
+            console.log('> Intelipost invalid JSON response')
             return res.status(409).send({
               error: 'CALCULATE_INVALID_RES',
               message: data
@@ -156,25 +155,26 @@ exports.post = ({ appSdk }, req, res) => {
           result = data
         }
 
-        if (result && Number(result.codigo_retorno) === 1 && Array.isArray(result.data)) {
+        if (result && result.status === 1 && Array.isArray(result.data && result.data.delivery_options)) {
           // success response
-          result.data.forEach(dfService => {
+          const { delivery_options } = result.data
+          delivery_options.forEach(intelipostService => {
             // parse to E-Com Plus shipping line object
-            const serviceCode = String(dfService.cod_tabela)
+            const serviceCode = String(intelipostService.delivery_method_id)
             const price = parseFloat(
-              dfService.valor_frete_exibicao >= 0 && dfService.valor_frete_exibicao !== null
-                ? dfService.valor_frete_exibicao
-                : dfService.valor_frete
+              intelipostService.final_shipping_cost >= 0 && intelipostService.final_shipping_cost !== null
+                ? intelipostService.final_shipping_cost
+                : intelipostService.provider_shipping_cost
             )
 
             // push shipping service object to response
             response.shipping_services.push({
-              label: dfService.nome_transportador || dfService.descricao,
-              carrier: dfService.nome_transportador,
-              carrier_doc_number: typeof dfService.cnpj_transportador === 'string'
-                ? dfService.cnpj_transportador.replace(/\D/g, '').substr(0, 19)
+              label: intelipostService.delivery_method_name || intelipostService.description,
+              carrier: intelipostService.delivery_method_name,
+              carrier_doc_number: typeof intelipostService.cnpj_transportador === 'string'
+                ? intelipostService.cnpj_transportador.replace(/\D/g, '').substr(0, 19)
                 : undefined,
-              service_name: `${(dfService.descricao || serviceCode)} (Datafrete)`,
+              service_name: `${intelipostService.logistic_provider_name} (Intelipost)`,
               service_code: serviceCode,
               shipping_line: {
                 from: {
@@ -186,7 +186,7 @@ exports.post = ({ appSdk }, req, res) => {
                 total_price: price,
                 discount: 0,
                 delivery_time: {
-                  days: parseInt(dfService.prazo_exibicao || dfService.prazo, 10),
+                  days: parseInt(intelipostService.delivery_estimate_business_days, 10),
                   working_days: true
                 },
                 posting_deadline: {
@@ -194,14 +194,14 @@ exports.post = ({ appSdk }, req, res) => {
                   ...appData.posting_deadline
                 },
                 warehouse_code: warehouseCode,
-                flags: ['datafrete-ws', `datafrete-${serviceCode}`.substr(0, 20)]
+                flags: ['intelipost-ws', `intelipost-${serviceCode}`.substr(0, 20)]
               }
             })
           })
           res.send(response)
         } else {
           // console.log(data)
-          const err = new Error('Invalid Datafrete calculate response')
+          const err = new Error('Invalid Intelipost calculate response')
           err.response = { data, status }
           throw err
         }
@@ -210,7 +210,7 @@ exports.post = ({ appSdk }, req, res) => {
       .catch(err => {
         let { message, response } = err
         if (response && response.data) {
-          // try to handle Datafrete error response
+          // try to handle Intelipost error response
           const { data } = response
           let result
           if (typeof data === 'string') {
@@ -221,9 +221,9 @@ exports.post = ({ appSdk }, req, res) => {
           } else {
             result = data
           }
-          console.log('> Datafrete invalid result:', data)
+          console.log('> Intelipost invalid result:', data)
           if (result && result.data) {
-            // Datafrete error message
+            // Intelipost error message
             return res.status(409).send({
               error: 'CALCULATE_FAILED',
               message: result.data

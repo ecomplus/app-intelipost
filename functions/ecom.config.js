@@ -252,6 +252,64 @@
         }
       },
       hide: false
+    },
+    warehouses: {
+      schema: {
+        title: 'Armazéns (multi CD)',
+        description: 'Origens e destinos para cada centro de distribuição',
+        type: 'array',
+        maxItems: 30,
+        items: {
+          title: 'Centro de distribuição',
+          type: 'object',
+          required: ['zip'],
+          additionalProperties: false,
+          properties: {
+            code: {
+              type: 'string',
+              maxLength: 30,
+              pattern: '^[A-Za-z0-9-_]{2,30}$',
+              title: 'Código do CD'
+            },
+            intelipost_doc: {
+              type: 'string',
+              maxLength: 255,
+              title: 'Documento da filial',
+              description: 'CNPJ da filial associado à sua conta Intelipost'
+            },
+            zip: {
+              type: 'string',
+              maxLength: 9,
+              pattern: '^[0-9]{5}-?[0-9]{3}$',
+              title: 'CEP de origem',
+              description: 'Código postal do remetente para cálculo do frete'
+            },
+            zip_range: {
+              title: 'Faixa de CEP atendida',
+              type: 'object',
+              required: [
+                'min',
+                'max'
+              ],
+              properties: {
+                min: {
+                  type: 'integer',
+                  minimum: 10000,
+                  maximum: 999999999,
+                  title: 'CEP inicial'
+                },
+                max: {
+                  type: 'integer',
+                  minimum: 10000,
+                  maximum: 999999999,
+                  title: 'CEP final'
+                }
+              }
+            }
+          }
+        }
+      },
+      hide: true
     }
   }
 }

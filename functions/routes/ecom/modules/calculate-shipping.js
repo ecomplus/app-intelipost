@@ -46,9 +46,37 @@ exports.post = ({ appSdk }, req, res) => {
     return true
   }
 
-  let originZip
-  originZip = appData.zip
+  let originZip, warehouseCode
+  if (params.from) {
+    originZip = params.from.zip
+  } else if (Array.isArray(appData.warehouses) && appData.warehouses.length) {
+    for (let i = 0; i < appData.warehouses.length; i++) {
+      const warehouse = appData.warehouses[i]
+      if (warehouse && warehouse.zip && checkZipCode(warehouse)) {
+        const { code } = warehouse
+        if (!code) {
+          continue
+        }
+        if (
+          params.items &&
+          params.items.find(({ quantity, inventory }) => inventory && Object.keys(inventory).length && !(inventory[code] >= quantity))
+        ) {
+          // item not available on current warehouse
+          continue
+        }
+        originZip = warehouse.zip
+        if (warehouse.intelipost_doc) {
+          docNumber = warehouse.intelipost_doc
+        }
+        warehouseCode = code
+      }
+    }
+  }
+  if (!originZip) {
+    originZip = appData.zip
+  }
   originZip = typeof originZip === 'string' ? originZip.replace(/\D/g, '') : ''
+
 
   // search for configured free shipping rule
   if (Array.isArray(appData.free_shipping_rules)) {
@@ -194,7 +222,8 @@ exports.post = ({ appSdk }, req, res) => {
                   ...appData.posting_deadline
                 },
                 warehouse_code: warehouseCode,
-                flags: ['intelipost-ws', `intelipost-${serviceCode}`.substr(0, 20)]
+                flags: ['intelipost-ws', `intelipost-${serviceCode}`.substr(0, 20)],
+                app
               }
             })
           })

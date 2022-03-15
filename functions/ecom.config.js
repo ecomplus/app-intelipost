@@ -157,16 +157,6 @@ const app = {
       },
       hide: true
     },
-    free_shipping_from_value: {
-      schema: {
-        title: "Frete grátis a partir de",
-        type: integer,
-        min: 1,
-        max: 9999999,
-        description: "Valor mínimo para aplicar frete grátis."
-      },
-      hide: false
-    },
     quoting_mode: {
       schema: {
         title: "Tipo de cálculo",

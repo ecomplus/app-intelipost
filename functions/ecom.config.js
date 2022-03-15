@@ -5,7 +5,7 @@
  * Ref.: https://developers.e-com.plus/docs/api/#/store/applications/
  */
 
- const app = {
+const app = {
   app_id: 124679,
   title: 'Intelipost',
   slug: 'intelipost',

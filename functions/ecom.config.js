@@ -6,12 +6,12 @@
  */
 
 const app = {
-  app_id: 124951,
-  title: 'My Awesome E-Com Plus App',
-  slug: 'my-awesome-app',
+  app_id: 124679,
+  title: 'Intelipost',
+  slug: 'intelipost',
   type: 'external',
   state: 'active',
-  authentication: true,
+  authentication: false,
 
   /**
    * Uncomment modules above to work with E-Com Plus Mods API on Storefront.
@@ -22,7 +22,7 @@ const app = {
      * Triggered to calculate shipping options, must return values and deadlines.
      * Start editing `routes/ecom/modules/calculate-shipping.js`
      */
-    // calculate_shipping:   { enabled: true },
+    calculate_shipping:   { enabled: true },
 
     /**
      * Triggered to validate and apply discount value, must return discount and conditions.
@@ -48,10 +48,10 @@ const app = {
    */
   auth_scope: {
     'stores/me': [
-      'GET'            // Read store info
+      // 'GET'            // Read store info
     ],
     procedures: [
-      'POST'           // Create procedures to receive webhooks
+      // 'POST'           // Create procedures to receive webhooks
     ],
     products: [
       // 'GET',           // Read products with public and private fields
@@ -82,7 +82,7 @@ const app = {
       // 'DELETE',        // Delete customers
     ],
     orders: [
-      // 'GET',           // List/read orders with public and private fields
+      'GET',           // List/read orders with public and private fields
       // 'POST',          // Create orders
       // 'PATCH',         // Edit orders
       // 'PUT',           // Overwrite orders
@@ -101,7 +101,7 @@ const app = {
      */
     'orders/fulfillments': [
       // 'GET',           // List/read order fulfillment and tracking events
-      // 'POST',          // Create fulfillment event with new status
+      'POST',          // Create fulfillment event with new status
       // 'DELETE',        // Delete fulfillment event
     ],
     'orders/payments_history': [
@@ -136,39 +136,171 @@ const app = {
      * Ref.: https://developers.e-com.plus/docs/api/#/store/
      */
   },
-  
+
   admin_settings: {
-    /**
-     * JSON schema based fields to be configured by merchant and saved to app `data` / `hidden_data`, such as:
-     
-     webhook_uri: {
-       schema: {
-         type: 'string',
-         maxLength: 255,
-         format: 'uri',
-         title: 'Notifications URI',
-         description: 'Unique notifications URI available on your Custom App dashboard'
-       },
-       hide: true
-     },
-     token: {
-       schema: {
-         type: 'string',
-         maxLength: 50,
-         title: 'App token'
-       },
-       hide: true
-     },
-     opt_in: {
-       schema: {
-         type: 'boolean',
-         default: false,
-         title: 'Some config option'
-       },
-       hide: false
-     },
-     
-     */
+    zip: {
+      schema: {
+        type: 'string',
+        maxLength: 9,
+        pattern: '^[0-9]{5}-?[0-9]{3}$',
+        title: 'CEP de origem',
+        description: 'Código postal do remetente para cálculo do frete'
+      },
+      hide: true
+    },
+    intelipost_token: {
+      schema: {
+        type: 'string',
+        maxLength: 255,
+        title: 'Intelipost token',
+        description: 'Solitite na Intelipost o token para REST API cálculo frete'
+      },
+      hide: true
+    },
+    quoting_mode: {
+      schema: {
+        title: "Tipo de cálculo",
+        type: "string",
+        description: "Escolha o tipo de cálculo utilizado a ser utilizado em sua loja",
+        enum: [
+          "DYNAMIC_BOX_ALL_ITEMS",
+          "REGISTERED_BOXES",
+          "DYNAMIC_BOX_SINGLE_ITEM",
+          "DYNAMIC_BOX_BY_SKU"
+        ]
+      },
+      hide: false
+    },
+    free_shipping_rules: {
+      schema: {
+        title: 'Regras de frete grátis',
+        description: 'Deve ser configurado em conformidade ao que foi configurado na Intelipost',
+        type: 'array',
+        maxItems: 300,
+        items: {
+          title: 'Regra de frete grátis',
+          type: 'object',
+          minProperties: 1,
+          properties: {
+            zip_range: {
+              title: 'Faixa de CEP',
+              type: 'object',
+              required: [
+                'min',
+                'max'
+              ],
+              properties: {
+                min: {
+                  type: 'integer',
+                  minimum: 10000,
+                  maximum: 999999999,
+                  title: 'CEP inicial'
+                },
+                max: {
+                  type: 'integer',
+                  minimum: 10000,
+                  maximum: 999999999,
+                  title: 'CEP final'
+                }
+              }
+            },
+            min_amount: {
+              type: 'number',
+              minimum: 1,
+              maximum: 999999999,
+              title: 'Valor mínimo da compra'
+            }
+          }
+        }
+      },
+      hide: false
+    },
+    posting_deadline: {
+      schema: {
+        title: 'Prazo de postagem',
+        type: 'object',
+        required: ['days'],
+        additionalProperties: false,
+        properties: {
+          days: {
+            type: 'integer',
+            minimum: 0,
+            maximum: 999999,
+            title: 'Número de dias',
+            description: 'Dias de prazo para postar os produtos após a compra'
+          },
+          working_days: {
+            type: 'boolean',
+            default: true,
+            title: 'Dias úteis'
+          },
+          after_approval: {
+            type: 'boolean',
+            default: true,
+            title: 'Após aprovação do pagamento'
+          }
+        }
+      },
+      hide: false
+    },
+    warehouses: {
+      schema: {
+        title: 'Armazéns (multi CD)',
+        description: 'Origens e destinos para cada centro de distribuição',
+        type: 'array',
+        maxItems: 30,
+        items: {
+          title: 'Centro de distribuição',
+          type: 'object',
+          required: ['zip'],
+          additionalProperties: false,
+          properties: {
+            code: {
+              type: 'string',
+              maxLength: 30,
+              pattern: '^[A-Za-z0-9-_]{2,30}$',
+              title: 'Código do CD'
+            },
+            intelipost_doc: {
+              type: 'string',
+              maxLength: 255,
+              title: 'Documento da filial',
+              description: 'CNPJ da filial associado à sua conta Intelipost'
+            },
+            zip: {
+              type: 'string',
+              maxLength: 9,
+              pattern: '^[0-9]{5}-?[0-9]{3}$',
+              title: 'CEP de origem',
+              description: 'Código postal do remetente para cálculo do frete'
+            },
+            zip_range: {
+              title: 'Faixa de CEP atendida',
+              type: 'object',
+              required: [
+                'min',
+                'max'
+              ],
+              properties: {
+                min: {
+                  type: 'integer',
+                  minimum: 10000,
+                  maximum: 999999999,
+                  title: 'CEP inicial'
+                },
+                max: {
+                  type: 'integer',
+                  minimum: 10000,
+                  maximum: 999999999,
+                  title: 'CEP final'
+                }
+              }
+            }
+          }
+        }
+      },
+      hide: true
+    }
   }
 }
 

@@ -28,7 +28,7 @@ exports.post = ({ appSdk }, req, res) => {
     // must have configured Intelipost token
     return res.status(409).send({
       error: 'CALCULATE_AUTH_ERR',
-      message: `Token unset on app hidden data (merchant must configure the app) on ${storeId}`
+      message: `Token unset on app hidden data (merchant must configure token on the app) on ${storeId}`
     })
   }
 

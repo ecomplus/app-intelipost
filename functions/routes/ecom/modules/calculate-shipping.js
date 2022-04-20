@@ -168,7 +168,9 @@ exports.post = ({ appSdk }, req, res) => {
           }
         })
       },
-      headers
+      { 
+        headers
+      }
     )
 
       .then(({ data, status }) => {

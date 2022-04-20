@@ -119,7 +119,6 @@ exports.post = ({ appSdk }, req, res) => {
     return axios.post(
       'https://api.intelipost.com.br/api/v1/quote_by_product',
       {
-        token,
         origin_zip_code: originZip,
         destination_zip_code: destinationZip,
         quoting_mode: quoting_mode,

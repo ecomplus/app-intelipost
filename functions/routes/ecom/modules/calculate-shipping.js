@@ -113,6 +113,9 @@ exports.post = ({ appSdk }, req, res) => {
 
   if (params.items) {
     // send POST request to Datafrete REST API
+    const headers = {
+      'api-key': token
+    }
     return axios.post(
       'https://api.intelipost.com.br/api/v1/quote_by_product',
       {
@@ -165,7 +168,8 @@ exports.post = ({ appSdk }, req, res) => {
             cost_of_goods: ecomUtils.price(item)
           }
         })
-      }
+      },
+      headers
     )
 
       .then(({ data, status }) => {

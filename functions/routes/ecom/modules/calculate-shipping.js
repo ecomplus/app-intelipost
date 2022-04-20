@@ -190,7 +190,7 @@ exports.post = ({ appSdk }, req, res) => {
           result = data
         }
 
-        if (result && result.status === 'OK' && Array.isArray(result.data && result.data.delivery_options)) {
+        if (result && result.status === 'OK' && Array.isArray(result.content && result.content.delivery_options)) {
           // success response
           const { delivery_options } = result.data
           delivery_options.forEach(intelipostService => {

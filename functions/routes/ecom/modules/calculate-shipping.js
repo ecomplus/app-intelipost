@@ -229,8 +229,7 @@ exports.post = ({ appSdk }, req, res) => {
                   ...appData.posting_deadline
                 },
                 warehouse_code: warehouseCode,
-                flags: ['intelipost-ws', `intelipost-${serviceCode}`.substr(0, 20)],
-                app
+                flags: ['intelipost-ws', `intelipost-${serviceCode}`.substr(0, 20)]
               }
             })
           })

@@ -192,7 +192,7 @@ exports.post = ({ appSdk }, req, res) => {
 
         if (result && result.status === 'OK' && Array.isArray(result.content && result.content.delivery_options)) {
           // success response
-          const { delivery_options } = result.data
+          const { delivery_options } = result.content
           delivery_options.forEach(intelipostService => {
             // parse to E-Com Plus shipping line object
             const serviceCode = String(intelipostService.delivery_method_id)

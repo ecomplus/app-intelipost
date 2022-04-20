@@ -174,6 +174,7 @@ exports.post = ({ appSdk }, req, res) => {
     )
 
       .then(({ data, status }) => {
+        console.log('Resultado', data)
         let result
         if (typeof data === 'string') {
           try {

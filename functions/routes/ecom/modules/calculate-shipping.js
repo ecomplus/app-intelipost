@@ -114,7 +114,8 @@ exports.post = ({ appSdk }, req, res) => {
   if (params.items) {
     // send POST request to Datafrete REST API
     const headers = {
-      'api-key': token
+      'api-key': token,
+      'Content-Type': 'application/json'
     }
     return axios.post(
       'https://api.intelipost.com.br/api/v1/quote_by_product',

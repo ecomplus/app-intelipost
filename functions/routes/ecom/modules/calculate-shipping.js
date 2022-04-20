@@ -22,7 +22,8 @@ exports.post = ({ appSdk }, req, res) => {
   }
   // merge all app options configured by merchant
   const appData = Object.assign({}, application.data, application.hidden_data)
-  const { token, quoting_mode } = appData
+  const { quoting_mode } = appData
+  const token = appData.intelipost_token
 
   if (!token) {
     // must have configured Intelipost token

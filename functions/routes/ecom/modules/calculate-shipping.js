@@ -76,6 +76,7 @@ exports.post = ({ appSdk }, req, res) => {
     }
   }
   if (!originZip) {
+    console.log('Origin zip do not exist', originZip)
     originZip = appData.zip
   }
   originZip = typeof originZip === 'string' ? originZip.replace(/\D/g, '') : ''
@@ -114,6 +115,7 @@ exports.post = ({ appSdk }, req, res) => {
   }
 
   if (params.items) {
+    console.log('Antes do post o cep de origem é', originZip)
     // send POST request to Datafrete REST API
     const headers = {
       'api-key': token,

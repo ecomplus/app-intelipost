@@ -65,7 +65,9 @@ exports.post = ({ appSdk }, req, res) => {
           // item not available on current warehouse
           continue
         }
+        console.log('Warehouse', warehouse)
         originZip = warehouse.zip
+        console.log('Cep de origem', originZip)
         if (warehouse.intelipost_doc) {
           docNumber = warehouse.intelipost_doc
         }

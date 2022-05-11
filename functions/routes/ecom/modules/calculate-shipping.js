@@ -204,7 +204,7 @@ exports.post = ({ appSdk }, req, res) => {
 
             // push shipping service object to response
             response.shipping_services.push({
-              label: intelipostService.delivery_method_name || intelipostService.description,
+              label: intelipostService.description || intelipostService.delivery_method_name,
               carrier: intelipostService.delivery_method_name,
               carrier_doc_number: typeof intelipostService.cnpj_transportador === 'string'
                 ? intelipostService.cnpj_transportador.replace(/\D/g, '').substr(0, 19)

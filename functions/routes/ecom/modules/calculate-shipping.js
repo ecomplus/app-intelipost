@@ -171,6 +171,9 @@ exports.post = ({ appSdk }, req, res) => {
       },
       { 
         headers
+      },
+      {
+        timeout: (params.is_checkout_confirmation ? 8000 : 4500)
       }
     )
 

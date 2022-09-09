@@ -192,6 +192,7 @@ exports.post = ({ appSdk }, req, res) => {
         } else {
           result = data
         }
+        console.log('Resultado cotação', JSON.stringify(result))
 
         if (result && result.status === 'OK' && Array.isArray(result.content && result.content.delivery_options)) {
           // success response
